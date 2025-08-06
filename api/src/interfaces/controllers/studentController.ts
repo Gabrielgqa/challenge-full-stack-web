@@ -58,3 +58,32 @@ export async function remove(req: Request, res: Response) {
     return res.status(500).json({ error: 'Failed to delete student' });
   }
 }
+
+export async function update(req: Request, res: Response) {
+  const bodySchema = z.object({
+    name: z.string().min(1, 'Name is required').optional(),
+    email: z.string().toLowerCase().trim().regex(/^\S+@\S+\.\S+$/, 'Invalid email').optional(),
+  }).refine(data => data.name || data.email, {
+    message: 'At least one field (name or email) must be provided',
+  });
+
+  const bodyResult = bodySchema.safeParse(req.body);
+  if (!bodyResult.success) {
+    return res.status(400).json({ error: 'Validation failed' });
+  }
+  const updateData = bodyResult.data;
+
+  const { id } = req.params;
+
+  try {
+    const student = await knex('students').where({ id }).first();
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+
+    await knex('students').where({ id }).update(updateData);
+
+    const updatedStudent = await knex('students').where({ id }).first();
+    return res.json(updatedStudent);
+  } catch {
+    return res.status(500).json({ error: 'Failed to update student' });
+  }
+}
