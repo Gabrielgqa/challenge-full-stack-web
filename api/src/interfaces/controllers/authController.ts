@@ -40,7 +40,16 @@ export async function register(req: Request, res: Response) {
 }
 
 export async function login(req: Request, res: Response) {
-  const { email, password } = req.body;
+  const schema = z.object({
+    email: z.string().toLowerCase().trim().pipe(z.string().regex(/^\S+@\S+\.\S+$/, 'Invalid email')),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+  });
+
+  const parseResult = schema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({ error: 'Validation failed' });
+  }
+  const { email, password } = parseResult.data;
 
   try {
     const user = await knex('users').where({ email }).first();
