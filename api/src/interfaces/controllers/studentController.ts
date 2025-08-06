@@ -34,3 +34,12 @@ export async function create(req: Request, res: Response) {
     return res.status(500).json({ error: 'Registration failed' });
   }
 }
+
+export async function getAll(req: Request, res: Response) { 
+  try {
+    const students = await knex('students').select('ra', 'name', 'cpf');;
+    return res.json(students);
+  } catch {
+    return res.status(500).json({ error: 'Failed to fetch students' });
+  }
+}
