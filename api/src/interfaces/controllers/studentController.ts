@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import knex from '../../infrastructure/database/connection';
+import { StudentRepository } from '../../infrastructure/repositories/studentRepository';
 import { z } from 'zod';
 
 export async function create(req: Request, res: Response) {
-    const schema = z.object({
+  const schema = z.object({
     name: z.string().min(1, 'Name is required'),
     email: z.string().toLowerCase().trim().pipe(z.string().regex(/^\S+@\S+\.\S+$/, 'Invalid email')),
     cpf: z.string().regex(/^\d{11}$/, 'CPF must have exactly 11 digits'),
@@ -11,33 +11,26 @@ export async function create(req: Request, res: Response) {
 
   const parseResult = schema.safeParse(req.body);
   if (!parseResult.success) {
-    return res.status(400).json({error: 'Validation failed'});
+    return res.status(400).json({ error: 'Validation failed' });
   }
   const { name, email, cpf } = parseResult.data;
 
   try {
-    const userExists = await knex('students').where({ cpf }).first();
-    if (userExists) {
+    const studentExists = await StudentRepository.findByCpf(cpf);
+    if (studentExists) {
       return res.status(400).json({ error: 'Student already exists' });
     }
 
-    const [user] = await knex('students')
-      .insert({
-        name,
-        email,
-        cpf,
-      })
-      .returning(['id', 'ra', 'name', 'cpf']);
-
-    return res.status(201).json(user);
+    const student = await StudentRepository.create({ name, email, cpf });
+    return res.status(201).json(student);
   } catch (err) {
     return res.status(500).json({ error: 'Registration failed' });
   }
 }
 
-export async function getAll(req: Request, res: Response) { 
+export async function getAll(req: Request, res: Response) {
   try {
-    const students = await knex('students').select('ra', 'name', 'email', 'cpf');;
+    const students = await StudentRepository.getAll();
     return res.json(students);
   } catch {
     return res.status(500).json({ error: 'Failed to fetch students' });
@@ -48,17 +41,16 @@ export async function remove(req: Request, res: Response) {
   const { id } = req.params;
 
   try {
-    const student = await knex('students').where({ id }).first();
+    const student = await StudentRepository.findById(id);
     if (!student) return res.status(404).json({ error: 'Student not found' });
 
-    await knex('students').where({ id }).del();
+    await StudentRepository.remove(id);
 
     return res.json({ message: 'Student deleted' });
   } catch {
     return res.status(500).json({ error: 'Failed to delete student' });
   }
 }
-
 export async function update(req: Request, res: Response) {
   const bodySchema = z.object({
     name: z.string().min(1, 'Name is required').optional(),
@@ -76,12 +68,10 @@ export async function update(req: Request, res: Response) {
   const { id } = req.params;
 
   try {
-    const student = await knex('students').where({ id }).first();
+    const student = await StudentRepository.findById(id);
     if (!student) return res.status(404).json({ error: 'Student not found' });
 
-    await knex('students').where({ id }).update(updateData);
-
-    const updatedStudent = await knex('students').where({ id }).first();
+    const updatedStudent = await StudentRepository.update(id, updateData);
     return res.json(updatedStudent);
   } catch {
     return res.status(500).json({ error: 'Failed to update student' });

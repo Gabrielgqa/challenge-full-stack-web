@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import knex from '../../infrastructure/database/connection';
+import { UserRepository } from '../../infrastructure/repositories/userRepository';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
@@ -18,21 +18,14 @@ export async function register(req: Request, res: Response) {
   const { name, email, password } = parseResult.data;
 
   try {
-    const userExists = await knex('users').where({ email }).first();
+    const userExists = await UserRepository.findByEmail(email);
     if (userExists) {
       return res.status(400).json({ error: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const [user] = await knex('users')
-      .insert({
-        name,
-        email,
-        password: hashedPassword,
-      })
-      .returning(['id', 'name', 'email']);
-
+    const user = await UserRepository.create({ name, email, password: hashedPassword });
     return res.status(201).json(user);
   } catch (err) {
     return res.status(500).json({ error: 'Registration failed' });
@@ -52,7 +45,7 @@ export async function login(req: Request, res: Response) {
   const { email, password } = parseResult.data;
 
   try {
-    const user = await knex('users').where({ email }).first();
+    const user = await UserRepository.findByEmail(email);
 
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
 
