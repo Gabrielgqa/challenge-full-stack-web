@@ -43,3 +43,18 @@ export async function getAll(req: Request, res: Response) {
     return res.status(500).json({ error: 'Failed to fetch students' });
   }
 }
+
+export async function remove(req: Request, res: Response) {
+  const { id } = req.params;
+
+  try {
+    const student = await knex('students').where({ id }).first();
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+
+    await knex('students').where({ id }).del();
+
+    return res.json({ message: 'Student deleted' });
+  } catch {
+    return res.status(500).json({ error: 'Failed to delete student' });
+  }
+}
