@@ -37,7 +37,7 @@ export async function create(req: Request, res: Response) {
 
 export async function getAll(req: Request, res: Response) { 
   try {
-    const students = await knex('students').select('ra', 'name', 'cpf');;
+    const students = await knex('students').select('ra', 'name', 'email', 'cpf');;
     return res.json(students);
   } catch {
     return res.status(500).json({ error: 'Failed to fetch students' });
