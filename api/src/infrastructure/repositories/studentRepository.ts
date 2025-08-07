@@ -13,7 +13,7 @@ export const StudentRepository = {
   },
 
   async getAll() {
-    return knex('students').select('ra', 'name', 'email', 'cpf');
+    return knex('students').select('id', 'ra', 'name', 'email', 'cpf');
   },
 
   async findById(id: string) {
