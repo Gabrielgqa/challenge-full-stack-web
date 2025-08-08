@@ -37,6 +37,17 @@ export async function getAll(req: Request, res: Response) {
   }
 }
 
+export async function getById(req: Request, res: Response) {
+  const { id } = req.params;
+  try {
+    const student = await StudentRepository.findById(id);
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+    return res.json(student);
+  } catch {
+    return res.status(500).json({ error: 'Failed to fetch student' });
+  }
+}
+
 export async function remove(req: Request, res: Response) {
   const { id } = req.params;
 

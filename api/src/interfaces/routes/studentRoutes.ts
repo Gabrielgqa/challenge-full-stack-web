@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { create, getAll, remove, update } from '../controllers/studentController';
+import { create, getAll, getById, remove, update } from '../controllers/studentController';
 
 const router = Router();
 
@@ -60,6 +60,40 @@ router.post('/', create);
  *                     type: string
  */
 router.get('/', getAll);
+
+/**
+ * @swagger
+ * /students/{id}:
+ *   get:
+ *     summary: Busca um estudante pelo id
+ *     tags: [Students]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID do estudante
+ *     responses:
+ *       200:
+ *         description: Estudante encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ra:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 cpf:
+ *                   type: string
+ *       404:
+ *         description: Estudante não encontrado
+ */
+router.get('/:id', getById);
 
 /**
  * @swagger
