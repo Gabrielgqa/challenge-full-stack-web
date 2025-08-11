@@ -16,7 +16,7 @@
 ## O QUE EU MELHORARIA SE TIVESSE MAIS TEMPO
 - Criaria os usecases para separar a regra de negócio da controller.
 - Criaria as entidades User e Student para poder fazer melhor uso da tipagem do typescript na hora de lidar com as entidades.
-- Adicionaria lógica de filtros e paginação
+- Adicionaria lógica de paginação
 
 ## QUAIS REQUISITOS OBRIGATÓRIOS NÃO FORAM ENTREGUES?
 - Acabei deixando o RA autogerável começando em 2025001
