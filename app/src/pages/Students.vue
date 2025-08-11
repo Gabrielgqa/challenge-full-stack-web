@@ -5,7 +5,14 @@
                 <span>Lista de Estudantes</span>
                 <v-btn color="primary" class="ml-auto" @click="goToCreate">Cadastrar +</v-btn>
             </v-card-title>
-            <v-data-table-virtual :headers="headers" :items="students" class="elevation-1" item-key="id" :height="500">
+            <v-text-field
+                v-model="filter"
+                label="Buscar por nome"
+                prepend-inner-icon="mdi-magnify"
+                class="mb-4"
+                clearable
+            />
+            <v-data-table-virtual :headers="headers" :items="filteredStudents" class="elevation-1" item-key="id" :height="500">
                 <template #item.ra="{ item }">
                     {{ item.ra || '-' }}
                 </template>
@@ -29,7 +36,7 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -58,7 +65,12 @@ async function removeStudent(id: number) {
     }
 }
 
-const students = ref<Array<{ id: number, name: string, email: string, ra?: string }>>([])
+const students = ref<Array<{ id: number, name: string, email: string, ra?: string, cpf?: string }>>([])
+const filter = ref('')
+const filteredStudents = computed(() => {
+    if (!filter.value) return students.value
+    return students.value.filter(s => s.name.toLowerCase().includes(filter.value.toLowerCase()))
+})
 const headers = [
     { title: 'Registro de matrícula', key: 'ra', width: 200 },
     { title: 'Nome', key: 'name', width: 200 },
