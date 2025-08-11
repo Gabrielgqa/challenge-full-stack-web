@@ -1,4 +1,4 @@
-## OBSERVAÇÂO CANDIDADATO
+# OBSERVAÇÃO CANDIDATO
 - As instruções para rodar tanto o app como a api estão dentro das respectivas pastas no arquivo COMMENTS.md
 
 +A Educação - Full Stack Web Developer
